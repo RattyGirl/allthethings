@@ -7,7 +7,7 @@ namespace AllTheThings.Windows;
 
 public class ConfigWindow : Window, IDisposable
 {
-    private Configuration Configuration;
+    private readonly Configuration Configuration;
 
     // We give this window a constant ID using ###
     // This allows for labels being dynamic, like "{FPS Counter}fps###XYZ counter window",
@@ -29,13 +29,9 @@ public class ConfigWindow : Window, IDisposable
     {
         // Flags must be added or removed before Draw() is being called, or they won't apply
         if (Configuration.IsConfigWindowMovable)
-        {
             Flags &= ~ImGuiWindowFlags.NoMove;
-        }
         else
-        {
             Flags |= ImGuiWindowFlags.NoMove;
-        }
     }
 
     public override void Draw()

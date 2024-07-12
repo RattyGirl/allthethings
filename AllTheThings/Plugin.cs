@@ -1,48 +1,29 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AllTheThings.Services;
+using AllTheThings.Windows;
 using Dalamud.Game.Command;
+using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
 using Dalamud.Plugin;
-using System.IO;
-using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
-using Lumina;
-using AllTheThings.Windows;
 
 namespace AllTheThings;
 
 public sealed class Plugin : IDalamudPlugin
 {
     private const string CommandName = "/att";
-    
-    [PluginService] 
-    internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
-    [PluginService] 
-    internal static ICommandManager CommandManager { get; private set; } = null!;
-    [PluginService] 
-    internal static IDataManager DataManager { get; private set; } = null!;
-    [PluginService] 
-    internal static IPluginLog Logger { get; private set; } = null!;
-    [PluginService]
-    internal static IGameInteropProvider GameInteropProvider { get; private set; } = null!;
-    
-    public Configuration Configuration { get; init; }
-    internal static GameFunctions GameFunctions { get; private set; } = null!;
 
     public readonly WindowSystem WindowSystem = new("AllTheThings");
-    internal ConfigWindow ConfigWindow { get; private set; } = null!;
-    internal MainWindow MainWindow { get; private set; } = null!;
-    internal AchievementWindow AchievementWindow { get; private set; } = null!;
-    
+    public static CompletionTaskService CompletionTaskService = new CompletionTaskService();
+
 
     public Plugin()
     {
-
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
         GameFunctions = new GameFunctions(this);
-        
+
 
         RegisterWindows();
-        
+
         CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
             HelpMessage = "A useful message to display in /xlhelp"
@@ -56,29 +37,53 @@ public sealed class Plugin : IDalamudPlugin
 
         // Adds another button that is doing the same but for the main ui of the plugin
         PluginInterface.UiBuilder.OpenMainUi += ToggleMainUI;
+
+        FrameworkInterface.Update += CompletionTaskService.Update;
         
+        
+
         AchievementWindow.Toggle();
     }
 
-    public void RegisterWindows()
-    {
-        ConfigWindow = new ConfigWindow(this);
-        MainWindow = new MainWindow(this);
-        AchievementWindow = new AchievementWindow(this);
+    [PluginService]
+    internal static IFramework FrameworkInterface { get; private set; } = null!;
 
-        WindowSystem.AddWindow(ConfigWindow);
-        WindowSystem.AddWindow(MainWindow);
-        WindowSystem.AddWindow(AchievementWindow);
-    }
+    [PluginService]
+    internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
+
+    [PluginService]
+    internal static ICommandManager CommandManager { get; private set; } = null!;
+
+    [PluginService]
+    internal static IDataManager DataManager { get; private set; } = null!;
+
+    [PluginService]
+    internal static IPluginLog Logger { get; private set; } = null!;
+
+    [PluginService]
+    internal static IGameInteropProvider GameInteropProvider { get; private set; } = null!;
+
+    public Configuration Configuration { get; init; }
+    internal static GameFunctions GameFunctions { get; private set; } = null!;
+    internal ConfigWindow ConfigWindow { get; private set; } = null!;
+    internal AchievementWindow AchievementWindow { get; private set; } = null!;
 
     public void Dispose()
     {
         WindowSystem.RemoveAllWindows();
 
         ConfigWindow.Dispose();
-        MainWindow.Dispose();
 
         CommandManager.RemoveHandler(CommandName);
+    }
+
+    public void RegisterWindows()
+    {
+        ConfigWindow = new ConfigWindow(this);
+        AchievementWindow = new AchievementWindow(this);
+
+        WindowSystem.AddWindow(ConfigWindow);
+        WindowSystem.AddWindow(AchievementWindow);
     }
 
     private void OnCommand(string command, string args)
@@ -87,8 +92,18 @@ public sealed class Plugin : IDalamudPlugin
         ToggleMainUI();
     }
 
-    private void DrawUI() => WindowSystem.Draw();
+    private void DrawUI()
+    {
+        WindowSystem.Draw();
+    }
 
-    public void ToggleConfigUI() => ConfigWindow.Toggle();
-    public void ToggleMainUI() => AchievementWindow.Toggle();
+    public void ToggleConfigUI()
+    {
+        ConfigWindow.Toggle();
+    }
+
+    public void ToggleMainUI()
+    {
+        AchievementWindow.Toggle();
+    }
 }
