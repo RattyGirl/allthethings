@@ -1,10 +1,15 @@
-﻿using AllTheThings.Services;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AllTheThings.DataModels;
+using AllTheThings.DataModels.Achievements;
+using AllTheThings.Services;
 using AllTheThings.Windows;
 using Dalamud.Game.Command;
 using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using Lumina.Excel.GeneratedSheets2;
 
 namespace AllTheThings;
 
@@ -14,6 +19,8 @@ public sealed class Plugin : IDalamudPlugin
 
     public readonly WindowSystem WindowSystem = new("AllTheThings");
     public static CompletionTaskService CompletionTaskService = new CompletionTaskService();
+ 
+    public static List<BaseItem> allItems = [];
 
 
     public Plugin()
@@ -39,10 +46,10 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.OpenMainUi += ToggleMainUI;
 
         FrameworkInterface.Update += CompletionTaskService.Update;
-        
-        
 
-        AchievementWindow.Toggle();
+        ReadData();
+
+        CompletionWindow.Toggle();
     }
 
     [PluginService]
@@ -66,7 +73,7 @@ public sealed class Plugin : IDalamudPlugin
     public Configuration Configuration { get; init; }
     internal static GameFunctions GameFunctions { get; private set; } = null!;
     internal ConfigWindow ConfigWindow { get; private set; } = null!;
-    internal AchievementWindow AchievementWindow { get; private set; } = null!;
+    internal CompletionWindow CompletionWindow { get; private set; } = null!;
 
     public void Dispose()
     {
@@ -80,10 +87,15 @@ public sealed class Plugin : IDalamudPlugin
     public void RegisterWindows()
     {
         ConfigWindow = new ConfigWindow(this);
-        AchievementWindow = new AchievementWindow(this);
+        CompletionWindow = new CompletionWindow(this);
 
         WindowSystem.AddWindow(ConfigWindow);
-        WindowSystem.AddWindow(AchievementWindow);
+        WindowSystem.AddWindow(CompletionWindow);
+    }
+
+    private void ReadData()
+    {
+        allItems.Add(new AllAchievementsItem());
     }
 
     private void OnCommand(string command, string args)
@@ -104,6 +116,6 @@ public sealed class Plugin : IDalamudPlugin
 
     public void ToggleMainUI()
     {
-        AchievementWindow.Toggle();
+        CompletionWindow.Toggle();
     }
 }

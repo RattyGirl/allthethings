@@ -1,9 +1,8 @@
-using System;
 using AllTheThings.Services;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets2;
 
-namespace AllTheThings.DataModels;
+namespace AllTheThings.DataModels.Achievements;
 
 public class AchievementItem : BaseItem
 {
@@ -14,12 +13,12 @@ public class AchievementItem : BaseItem
     public AchievementItem(Achievement achievement) : base(achievement.Name)
     {
         achievementRow = achievement;
-        getProgress();
+        GetProgress();
     }
 
-    public bool IsComplete => progressCurrent != null && progressCurrent == progressMax;
+    public override bool IsComplete() => progressCurrent != null && progressCurrent == progressMax;
 
-    public unsafe void getProgress()
+    public unsafe void GetProgress()
     {
         Plugin.CompletionTaskService.AddTask(
             new CompletionTaskType.AchievementTask(achievementRow.RowId, b =>
@@ -37,6 +36,6 @@ public class AchievementItem : BaseItem
 
     public override void Render()
     {
-        ImGui.Text(achievementRow.Name);
+        ImGui.Text((IsComplete() ? "\u2713" : "\u274c") + ":" + achievementRow.Name);
     }
 }

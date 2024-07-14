@@ -18,7 +18,6 @@ public class CompletionTaskService
 
     public unsafe void Update(IFramework framework)
     {
-        framework.
         if (curTask == null)
         {
             curTask = Tasks.Dequeue();

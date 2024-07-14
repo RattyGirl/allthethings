@@ -8,15 +8,11 @@ public abstract class BaseItem
 
     public string ItemName { get; set; }
     public List<BaseItem> Children = [];
+    public abstract bool IsComplete();
 
     protected BaseItem(String itemName)
     {
         ItemName = itemName;
-    }
-
-    public void AddChild(BaseItem child)
-    {
-        Children.Add(child);
     }
 
     public abstract void Render();
