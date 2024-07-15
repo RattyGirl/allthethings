@@ -8,23 +8,14 @@ public class AllAchievementsItem : BaseItem
 {
     public AllAchievementsItem() : base("Achievements") { }
 
-    public override bool IsComplete()
+    public override float CompletionAmount()
     {
-        return Children().All(item => item.IsComplete());
+        return 0.0f;
     }
 
     public override List<BaseItem> Children()
     {
         var achItems = Plugin.allItems.OfType<AchievementKindItem>().ToList();
         return achItems.Cast<BaseItem>().ToList();
-    }
-
-    public override void Render()
-    {
-        if (ImGui.TreeNode("Achievements"))
-        {
-            foreach (var child in Children()) child.Render();
-            ImGui.TreePop();
-        }
     }
 }

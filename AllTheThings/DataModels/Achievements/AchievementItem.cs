@@ -17,9 +17,19 @@ public class AchievementItem : BaseItem
         GetProgress();
     }
 
-    public override bool IsComplete()
+    public override float CompletionAmount()
     {
-        return progressCurrent != null && progressCurrent == progressMax;
+        if (progressCurrent == null || progressMax == null)
+        {
+            return 0.0f;
+        }
+        else if (progressMax == 0)
+        {
+            return 0.0f;
+        } else
+        {
+            return ((float)progressCurrent) / ((float)progressMax);
+        }
     }
 
     public override List<BaseItem> Children()
@@ -41,10 +51,5 @@ public class AchievementItem : BaseItem
                 progressMax = currentMaximum.maximum;
             })
         );
-    }
-
-    public override void Render()
-    {
-        ImGui.Text((IsComplete() ? "\u2713" : "\u274c") + ":" + achievementRow.Name);
     }
 }

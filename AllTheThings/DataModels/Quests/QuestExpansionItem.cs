@@ -14,9 +14,9 @@ public class QuestExpansionItem : BaseItem
         expansionRow = expansion;
     }
 
-    public override bool IsComplete()
+    public override float CompletionAmount()
     {
-        return Children().All(item => item.IsComplete());
+        return 0.0f;
     }
 
     public override List<BaseItem> Children()
@@ -25,14 +25,5 @@ public class QuestExpansionItem : BaseItem
                              .Where(quest =>
                                         quest.questRow.Expansion.Row == expansionRow.RowId);
         return achItems.Cast<BaseItem>().ToList();
-    }
-
-    public override void Render()
-    {
-        if (ImGui.TreeNode("Expansion: " + expansionRow.Name + "##Quest"))
-        {
-            foreach (var child in Children()) child.Render();
-            ImGui.TreePop();
-        }
     }
 }

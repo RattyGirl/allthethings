@@ -14,9 +14,9 @@ public class AchievementKindItem : BaseItem
         kindRow = kind;
     }
 
-    public override bool IsComplete()
+    public override float CompletionAmount()
     {
-        return Children().All(item => item.IsComplete());
+        return 0.0f;
     }
 
     public override List<BaseItem> Children()
@@ -24,15 +24,5 @@ public class AchievementKindItem : BaseItem
         var achItems = Plugin.allItems.OfType<AchievementCategoryItem>().ToList()
                              .Where(achievement => achievement.categoryRow.AchievementKind.Row == kindRow.RowId);
         return achItems.Cast<BaseItem>().ToList();
-    }
-
-    public override void Render()
-    {
-        if (ImGui.TreeNode("Kind: " + kindRow.Name))
-        {
-            foreach (var child in Children()) child.Render();
-
-            ImGui.TreePop();
-        }
     }
 }

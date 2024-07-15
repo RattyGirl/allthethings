@@ -14,9 +14,9 @@ public class AchievementCategoryItem : BaseItem
         categoryRow = category;
     }
 
-    public override bool IsComplete()
+    public override float CompletionAmount()
     {
-        return Children().All(item => item.IsComplete());
+        return 0.0f;
     }
 
     public override List<BaseItem> Children()
@@ -25,14 +25,5 @@ public class AchievementCategoryItem : BaseItem
                              .Where(achievement =>
                                         achievement.achievementRow.AchievementCategory.Row == categoryRow.RowId);
         return achItems.Cast<BaseItem>().ToList();
-    }
-
-    public override void Render()
-    {
-        if (ImGui.TreeNode("Category: " + categoryRow.Name))
-        {
-            foreach (var child in Children()) child.Render();
-            ImGui.TreePop();
-        }
     }
 }

@@ -71,10 +71,11 @@ public class CompletionTaskService : IDisposable
 
     private unsafe void ReceiveAchievementProgress(Achievement* self, uint id, uint current, uint max)
     {
-        Plugin.Logger.Info("Received Achievement" + id + ":" + current + "/" + max);
+        // Plugin.Logger.Info("Received Achievement" + id + ":" + current + "/" + max);
         try
         {
             var index = curTask.FindIndex(type => type.RowID == id);
+            ((CompletionTaskType.AchievementTask)curTask[index]).Complete((current, max));
             curTask.RemoveAt(index);
         }
         catch { }

@@ -14,19 +14,13 @@ public class QuestItem : BaseItem
         //TODO getProgress
     }
 
-    public override bool IsComplete()
+    public override float CompletionAmount()
     {
-        return true;
-        //todo
+        return 0.0f;
     }
 
     public override List<BaseItem> Children()
     {
         return [];
-    }
-
-    public override void Render()
-    {
-        ImGui.Text(questRow.Name);
     }
 }
