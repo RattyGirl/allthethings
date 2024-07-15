@@ -107,10 +107,10 @@ public sealed class Plugin : IDalamudPlugin
             allItems.Add(new AchievementCategoryItem(achievementCategory));
         foreach (var achievement in DataManager.GetExcelSheet<Achievement>()!.ToList())
             allItems.Add(new AchievementItem(achievement));
-        
+
         //Quests
         allItems.Add(new AllQuestsItem());
-        
+
         foreach (var quest in DataManager.GetExcelSheet<Quest>()!.ToList())
             allItems.Add(new QuestItem(quest));
         foreach (var expansion in DataManager.GetExcelSheet<ExVersion>()!.ToList())

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using AllTheThings.Services;
-using ImGuiNET;
 using Lumina.Excel.GeneratedSheets2;
 
 namespace AllTheThings.DataModels.Achievements;
@@ -17,19 +16,13 @@ public class AchievementItem : BaseItem
         GetProgress();
     }
 
-    public override float CompletionAmount()
+    public float CalculateCompletion()
     {
         if (progressCurrent == null || progressMax == null)
-        {
             return 0.0f;
-        }
-        else if (progressMax == 0)
-        {
+        if (progressMax == 0)
             return 0.0f;
-        } else
-        {
-            return ((float)progressCurrent) / ((float)progressMax);
-        }
+        return (float)progressCurrent / (float)progressMax;
     }
 
     public override List<BaseItem> Children()
@@ -49,7 +42,13 @@ public class AchievementItem : BaseItem
             {
                 progressCurrent = currentMaximum.current;
                 progressMax = currentMaximum.maximum;
+                CompletionAmount = CalculateCompletion();
             })
         );
+    }
+
+    public override string Description()
+    {
+        return achievementRow.Description;
     }
 }

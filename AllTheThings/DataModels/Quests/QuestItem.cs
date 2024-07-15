@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using ImGuiNET;
 using Lumina.Excel.GeneratedSheets2;
 
 namespace AllTheThings.DataModels.Quests;
@@ -11,12 +10,12 @@ public class QuestItem : BaseItem
     public QuestItem(Quest quest) : base(quest.Name)
     {
         questRow = quest;
-        //TODO getProgress
+        GetProgress();
     }
 
-    public override float CompletionAmount()
+    public void GetProgress()
     {
-        return 0.0f;
+        CompletionAmount = FFXIVClientStructs.FFXIV.Client.Game.QuestManager.IsQuestComplete(questRow.RowId) ? 1.0f : 0.0f;
     }
 
     public override List<BaseItem> Children()

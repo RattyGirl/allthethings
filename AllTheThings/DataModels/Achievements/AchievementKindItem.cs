@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using ImGuiNET;
 using Lumina.Excel.GeneratedSheets2;
 
 namespace AllTheThings.DataModels.Achievements;
@@ -12,11 +11,6 @@ public class AchievementKindItem : BaseItem
     public AchievementKindItem(AchievementKind kind) : base(kind.Name)
     {
         kindRow = kind;
-    }
-
-    public override float CompletionAmount()
-    {
-        return 0.0f;
     }
 
     public override List<BaseItem> Children()
