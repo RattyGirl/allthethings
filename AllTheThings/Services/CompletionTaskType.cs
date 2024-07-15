@@ -4,9 +4,13 @@ namespace AllTheThings.Services;
 
 public record CompletionTaskType
 {
-    public record AchievementTask(uint rowId, Action<bool> Setup, Action<(uint current, uint maximum)> Complete) : CompletionTaskType();
+    public record AchievementTask(uint rowId, Action<bool> Setup, Action<(uint current, uint maximum)> Complete) : CompletionTaskType(rowId);
 
-    public record QuestTask(uint rowId, Action<bool> Setup, Action<(uint current, uint maximum)> Complete) : CompletionTaskType();
+    public record QuestTask(uint rowId, Action<bool> Setup, Action<(uint current, uint maximum)> Complete) : CompletionTaskType(rowId);
 
-    private CompletionTaskType(){}
+    private CompletionTaskType(uint rowId)
+    {
+        RowID = rowId;
+    }
+    public readonly uint RowID;
 };

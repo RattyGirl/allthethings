@@ -29,7 +29,7 @@ public class CompletionWindow : Window, IDisposable
         if (ImGui.Button(showComplete ? "Hide Complete" : "Show Complete")) showComplete = !showComplete;
         if (ImGui.Button("Reset Current Task"))
         {
-            Plugin.CompletionTaskService.SetupTask();
+            Plugin.CompletionTaskService.SetupCurrentTasks();
         }
         ImGui.SameLine();
         ImGui.Text("Completion Amount: " + Plugin.CompletionTaskService.TaskCount + ":" + Plugin.allItems.Count);

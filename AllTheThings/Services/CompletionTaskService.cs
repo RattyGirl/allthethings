@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Dalamud.Hooking;
 using Dalamud.Plugin.Services;
 using Dalamud.Utility.Signatures;
@@ -11,10 +12,11 @@ namespace AllTheThings.Services;
 public class CompletionTaskService : IDisposable
 {
     private Queue<CompletionTaskType> Tasks = [];
-    private CompletionTaskType? curTask = null;
+    private List<CompletionTaskType> curTask = [];
+    const int MaxTasks = 50;
 
     public int TaskCount => Tasks.Count;
-    public String CurrentTask => curTask.ToString();
+    public String CurrentTask => curTask.Count().ToString();
 
     public CompletionTaskService()
     {
@@ -24,13 +26,20 @@ public class CompletionTaskService : IDisposable
 
     public void AddTask(CompletionTaskType task)
     {
-        Plugin.Logger.Info("Added Task: " + task.ToString());
         Tasks.Enqueue(task);
     }
 
-    public void SetupTask()
+    public void SetupCurrentTasks()
     {
-        switch (curTask)
+        foreach (var task in curTask)
+        {
+            SetupTask(task);
+        }
+    }
+
+    public void SetupTask(CompletionTaskType nextTask)
+    {
+        switch (nextTask)
         {
             case CompletionTaskType.AchievementTask achievementTask:
                 achievementTask.Setup(true);
@@ -38,31 +47,21 @@ public class CompletionTaskService : IDisposable
         }
     }
 
+    private void _AddNext()
+    {
+        try
+        {
+            var nextTask = Tasks.Dequeue();
+            SetupTask(nextTask);
+            curTask.Add(nextTask);
+        } catch {}
+    }
+
     public unsafe void Update(IFramework framework)
     {
-        if (curTask == null)
+        if (curTask.Count() < MaxTasks)
         {
-            curTask = Tasks.Dequeue();
-            Plugin.Logger.Info("Now completing: " + curTask.ToString());
-            SetupTask();
-        }
-        else
-        {
-            switch (curTask)
-            {
-                case CompletionTaskType.AchievementTask achievementTask:
-                {
-                    
-                    // var achInstance = FFXIVClientStructs.FFXIV.Client.Game.UI.Achievement.Instance();
-                    // if (achievementTask.rowId ==
-                    //     achInstance->ProgressAchievementId)
-                    // {
-                    //     achievementTask.Complete((achInstance->ProgressCurrent, achInstance->ProgressMax));
-                    //     curTask = null;
-                    // }
-                    break;
-                }
-            }
+            _AddNext();
         }
     }
 
@@ -74,6 +73,13 @@ public class CompletionTaskService : IDisposable
     private unsafe void ReceiveAchievementProgress(Achievement* self, uint id, uint current, uint max)
     {
         Plugin.Logger.Info("Received Achievement" + id + ":" + current + "/" + max);
+        try
+        {
+            var index = curTask.FindIndex(type => type.RowID == id);
+            curTask.RemoveAt(index);
+        }
+        catch { }
+
         this._receiveAchievementProgressDelegate.Original(self, id, current, max);
     }
 

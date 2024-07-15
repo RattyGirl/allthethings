@@ -20,18 +20,18 @@ public class AchievementItem : BaseItem
 
     public unsafe void GetProgress()
     {
-        Plugin.CompletionTaskService.AddTask(
-            new CompletionTaskType.AchievementTask(achievementRow.RowId, b =>
-            {
-                var achInstance = FFXIVClientStructs.FFXIV.Client.Game.UI.Achievement.Instance();
-                achInstance->RequestAchievementProgress(
-                    achievementRow.RowId);
-            }, currentMaximum =>
-            {
-                progressCurrent = currentMaximum.current;
-                progressMax = currentMaximum.maximum;
-            })
-        );
+    Plugin.CompletionTaskService.AddTask(
+        new CompletionTaskType.AchievementTask(achievementRow.RowId, b =>
+        {
+            var achInstance = FFXIVClientStructs.FFXIV.Client.Game.UI.Achievement.Instance();
+            achInstance->RequestAchievementProgress(
+                achievementRow.RowId);
+        }, currentMaximum =>
+        {
+            progressCurrent = currentMaximum.current;
+            progressMax = currentMaximum.maximum;
+        })
+    );
     }
 
     public override void Render()

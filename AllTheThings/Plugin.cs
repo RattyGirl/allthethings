@@ -9,7 +9,7 @@ using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
-using Lumina.Excel.GeneratedSheets2;
+using Lumina.Excel.GeneratedSheets;
 
 namespace AllTheThings;
 
@@ -18,16 +18,17 @@ public sealed class Plugin : IDalamudPlugin
     private const string CommandName = "/att";
 
     public readonly WindowSystem WindowSystem = new("AllTheThings");
-    public static CompletionTaskService CompletionTaskService = new CompletionTaskService();
+    public static CompletionTaskService CompletionTaskService;
  
     public static List<BaseItem> allItems = [];
 
 
     public Plugin()
     {
+        PluginInterface.Inject(this);
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
         GameFunctions = new GameFunctions(this);
-
+        CompletionTaskService = new CompletionTaskService();
 
         RegisterWindows();
 
@@ -82,6 +83,8 @@ public sealed class Plugin : IDalamudPlugin
         ConfigWindow.Dispose();
 
         CommandManager.RemoveHandler(CommandName);
+        
+        CompletionTaskService.Dispose();
     }
 
     public void RegisterWindows()
