@@ -14,7 +14,11 @@ public abstract class BaseItem
     }
 
     public string ItemName { get; set; }
-    public abstract float CompletionAmount();
+
+    public virtual float CompletionAmount()
+    {
+        return Children().Average(item => item.CompletionAmount() * 100);
+    }
 
     public abstract List<BaseItem> Children();
 
@@ -22,29 +26,25 @@ public abstract class BaseItem
     {
         if (!Children().Any())
         {
-            ImGui.TableNextColumn();
+            ImGui.TableSetColumnIndex(0);
             ImGui.Text(ItemName);
-            ImGui.TableNextColumn();
+            ImGui.TableSetColumnIndex(1);
             ImGui.Text(CompletionAmount().ToString("0.00%"));
         }
         else
         {
-            ImGui.TableNextColumn();
+            ImGui.TableSetColumnIndex(0);
             if (ImGui.TreeNode(ItemName + "##" + GetType().Name))
             {
-                if (ImGui.BeginTable(ItemName, 2, ImGuiTableFlags.SizingStretchSame))
+                foreach (var child in Children())
                 {
-                    foreach (var child in Children())
-                    {
-                        ImGui.TableNextRow();
-                        child.Render(windowSize);
-                    }
+                    ImGui.TableNextRow();
+                    child.Render(windowSize);
                 }
-                ImGui.EndTable();
                 ImGui.TreePop();
             }
 
-            ImGui.TableNextColumn();
+            ImGui.TableSetColumnIndex(1);
             ImGui.Text(CompletionAmount().ToString("0.00%"));
         }
     }
