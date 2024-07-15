@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using AllTheThings.Services;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets2;
@@ -16,22 +17,30 @@ public class AchievementItem : BaseItem
         GetProgress();
     }
 
-    public override bool IsComplete() => progressCurrent != null && progressCurrent == progressMax;
+    public override bool IsComplete()
+    {
+        return progressCurrent != null && progressCurrent == progressMax;
+    }
+
+    public override List<BaseItem> Children()
+    {
+        return [];
+    }
 
     public unsafe void GetProgress()
     {
-    Plugin.CompletionTaskService.AddTask(
-        new CompletionTaskType.AchievementTask(achievementRow.RowId, b =>
-        {
-            var achInstance = FFXIVClientStructs.FFXIV.Client.Game.UI.Achievement.Instance();
-            achInstance->RequestAchievementProgress(
-                achievementRow.RowId);
-        }, currentMaximum =>
-        {
-            progressCurrent = currentMaximum.current;
-            progressMax = currentMaximum.maximum;
-        })
-    );
+        Plugin.CompletionTaskService.AddTask(
+            new CompletionTaskType.AchievementTask(achievementRow.RowId, b =>
+            {
+                var achInstance = FFXIVClientStructs.FFXIV.Client.Game.UI.Achievement.Instance();
+                achInstance->RequestAchievementProgress(
+                    achievementRow.RowId);
+            }, currentMaximum =>
+            {
+                progressCurrent = currentMaximum.current;
+                progressMax = currentMaximum.maximum;
+            })
+        );
     }
 
     public override void Render()

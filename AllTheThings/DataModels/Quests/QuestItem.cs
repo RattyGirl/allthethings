@@ -1,7 +1,8 @@
+using System.Collections.Generic;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets2;
 
-namespace AllTheThings.DataModels;
+namespace AllTheThings.DataModels.Quests;
 
 public class QuestItem : BaseItem
 {
@@ -10,11 +11,18 @@ public class QuestItem : BaseItem
     public QuestItem(Quest quest) : base(quest.Name)
     {
         questRow = quest;
+        //TODO getProgress
     }
 
     public override bool IsComplete()
     {
-        return false;
+        return true;
+        //todo
+    }
+
+    public override List<BaseItem> Children()
+    {
+        return [];
     }
 
     public override void Render()

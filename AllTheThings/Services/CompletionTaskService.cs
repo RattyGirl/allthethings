@@ -5,23 +5,32 @@ using Dalamud.Hooking;
 using Dalamud.Plugin.Services;
 using Dalamud.Utility.Signatures;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
 namespace AllTheThings.Services;
 
 public class CompletionTaskService : IDisposable
 {
-    private Queue<CompletionTaskType> Tasks = [];
-    private List<CompletionTaskType> curTask = [];
-    const int MaxTasks = 50;
+    private const int MaxTasks = 50;
 
-    public int TaskCount => Tasks.Count;
-    public String CurrentTask => curTask.Count().ToString();
+    [Signature("C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 89 91 ?? ?? ?? ?? 44 89 81",
+               DetourName = nameof(ReceiveAchievementProgress))]
+    private readonly Hook<ReceiveAchievementProgressDelegate>? _receiveAchievementProgressDelegate;
+
+    private readonly List<CompletionTaskType> curTask = [];
+    private readonly Queue<CompletionTaskType> Tasks = [];
 
     public CompletionTaskService()
     {
         Plugin.GameInteropProvider.InitializeFromAttributes(this);
         _receiveAchievementProgressDelegate?.Enable();
+    }
+
+    public int TaskCount => Tasks.Count;
+    public String CurrentTask => curTask.Count().ToString();
+
+    public void Dispose()
+    {
+        _receiveAchievementProgressDelegate?.Dispose();
     }
 
     public void AddTask(CompletionTaskType task)
@@ -31,10 +40,7 @@ public class CompletionTaskService : IDisposable
 
     public void SetupCurrentTasks()
     {
-        foreach (var task in curTask)
-        {
-            SetupTask(task);
-        }
+        foreach (var task in curTask) SetupTask(task);
     }
 
     public void SetupTask(CompletionTaskType nextTask)
@@ -54,21 +60,14 @@ public class CompletionTaskService : IDisposable
             var nextTask = Tasks.Dequeue();
             SetupTask(nextTask);
             curTask.Add(nextTask);
-        } catch {}
-    }
-
-    public unsafe void Update(IFramework framework)
-    {
-        if (curTask.Count() < MaxTasks)
-        {
-            _AddNext();
         }
+        catch { }
     }
 
-    private unsafe delegate void ReceiveAchievementProgressDelegate(Achievement* self, uint id, uint current, uint max);
-
-    [Signature("C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 89 91 ?? ?? ?? ?? 44 89 81", DetourName = nameof(ReceiveAchievementProgress))]
-    private readonly Hook<ReceiveAchievementProgressDelegate>? _receiveAchievementProgressDelegate;
+    public void Update(IFramework framework)
+    {
+        if (curTask.Count() < MaxTasks) _AddNext();
+    }
 
     private unsafe void ReceiveAchievementProgress(Achievement* self, uint id, uint current, uint max)
     {
@@ -80,11 +79,8 @@ public class CompletionTaskService : IDisposable
         }
         catch { }
 
-        this._receiveAchievementProgressDelegate.Original(self, id, current, max);
+        _receiveAchievementProgressDelegate.Original(self, id, current, max);
     }
 
-    public void Dispose()
-    {
-        _receiveAchievementProgressDelegate?.Dispose();
-    }
+    private unsafe delegate void ReceiveAchievementProgressDelegate(Achievement* self, uint id, uint current, uint max);
 }

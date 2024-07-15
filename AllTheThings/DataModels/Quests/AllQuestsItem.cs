@@ -2,11 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using ImGuiNET;
 
-namespace AllTheThings.DataModels.Achievements;
+namespace AllTheThings.DataModels.Quests;
 
-public class AllAchievementsItem : BaseItem
+public class AllQuestsItem : BaseItem
 {
-    public AllAchievementsItem() : base("Achievements") { }
+    public AllQuestsItem() : base("Quests") { }
 
     public override bool IsComplete()
     {
@@ -15,13 +15,13 @@ public class AllAchievementsItem : BaseItem
 
     public override List<BaseItem> Children()
     {
-        var achItems = Plugin.allItems.OfType<AchievementKindItem>().ToList();
-        return achItems.Cast<BaseItem>().ToList();
+        var questItems = Plugin.allItems.OfType<QuestExpansionItem>().ToList();
+        return questItems.Cast<BaseItem>().ToList();
     }
 
     public override void Render()
     {
-        if (ImGui.TreeNode("Achievements"))
+        if (ImGui.TreeNode("Quests"))
         {
             foreach (var child in Children()) child.Render();
             ImGui.TreePop();

@@ -2,6 +2,7 @@
 using System.Linq;
 using AllTheThings.DataModels;
 using AllTheThings.DataModels.Achievements;
+using AllTheThings.DataModels.Quests;
 using AllTheThings.Services;
 using AllTheThings.Windows;
 using Dalamud.Game.Command;
@@ -9,18 +10,18 @@ using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.GeneratedSheets2;
 
 namespace AllTheThings;
 
 public sealed class Plugin : IDalamudPlugin
 {
     private const string CommandName = "/att";
+    public static CompletionTaskService CompletionTaskService;
+
+    public static List<BaseItem> allItems = [];
 
     public readonly WindowSystem WindowSystem = new("AllTheThings");
-    public static CompletionTaskService CompletionTaskService;
- 
-    public static List<BaseItem> allItems = [];
 
 
     public Plugin()
@@ -83,7 +84,7 @@ public sealed class Plugin : IDalamudPlugin
         ConfigWindow.Dispose();
 
         CommandManager.RemoveHandler(CommandName);
-        
+
         CompletionTaskService.Dispose();
     }
 
@@ -98,7 +99,22 @@ public sealed class Plugin : IDalamudPlugin
 
     private void ReadData()
     {
+        //Achieves
         allItems.Add(new AllAchievementsItem());
+        foreach (var achievementKind in DataManager.GetExcelSheet<AchievementKind>()!.ToList())
+            allItems.Add(new AchievementKindItem(achievementKind));
+        foreach (var achievementCategory in DataManager.GetExcelSheet<AchievementCategory>()!.ToList())
+            allItems.Add(new AchievementCategoryItem(achievementCategory));
+        foreach (var achievement in DataManager.GetExcelSheet<Achievement>()!.ToList())
+            allItems.Add(new AchievementItem(achievement));
+        
+        //Quests
+        allItems.Add(new AllQuestsItem());
+        
+        foreach (var quest in DataManager.GetExcelSheet<Quest>()!.ToList())
+            allItems.Add(new QuestItem(quest));
+        foreach (var expansion in DataManager.GetExcelSheet<ExVersion>()!.ToList())
+            allItems.Add(new QuestExpansionItem(expansion));
     }
 
     private void OnCommand(string command, string args)
