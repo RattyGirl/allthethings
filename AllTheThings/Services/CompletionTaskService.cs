@@ -12,10 +12,6 @@ public class CompletionTaskService : IDisposable
 {
     private const int MaxTasks = 50;
 
-    [Signature("C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 89 91 ?? ?? ?? ?? 44 89 81",
-               DetourName = nameof(ReceiveAchievementProgress))]
-    private readonly Hook<ReceiveAchievementProgressDelegate>? _receiveAchievementProgressDelegate;
-
     private readonly List<CompletionTaskType> curTask = [];
     private readonly Queue<CompletionTaskType> Tasks = [];
 
@@ -69,9 +65,14 @@ public class CompletionTaskService : IDisposable
         if (curTask.Count() < MaxTasks) _AddNext();
     }
 
+
+    [Signature("C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 89 91 ?? ?? ?? ?? 44 89 81",
+               DetourName = nameof(ReceiveAchievementProgress))]
+    private readonly Hook<ReceiveAchievementProgressDelegate>? _receiveAchievementProgressDelegate;
     private unsafe void ReceiveAchievementProgress(Achievement* self, uint id, uint current, uint max)
     {
         // Plugin.Logger.Info("Received Achievement" + id + ":" + current + "/" + max);
+        
         try
         {
             var index = curTask.FindIndex(type => type.RowID == id);

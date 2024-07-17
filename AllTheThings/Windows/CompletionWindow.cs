@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using AllTheThings.DataModels.Achievements;
+using AllTheThings.DataModels.Aetherytes;
 using AllTheThings.DataModels.Quests;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
@@ -9,8 +10,8 @@ namespace AllTheThings.Windows;
 
 public class CompletionWindow : Window, IDisposable
 {
-    private Plugin Plugin;
     public static bool showComplete = true;
+    private Plugin Plugin;
 
     public CompletionWindow(Plugin plugin) :
         base("AllTheThings##HiddenID")
@@ -31,11 +32,17 @@ public class CompletionWindow : Window, IDisposable
         ImGui.Text("Completion Amount: " + Plugin.CompletionTaskService.TaskCount + ":" + Plugin.allItems.Count);
         ImGui.Text("Task: " + Plugin.CompletionTaskService.CurrentTask ?? "Nonew");
 
+        if (ImGui.Button("Calculate Completion"))
+        {
+            Plugin.allItems.First(item => item.GetType() == typeof(AllAchievementsItem)).CalculateCompletion();
+        }
 
         if (ImGui.BeginTable("AllCollectables", 2))
         {
             Plugin.allItems.First(item => item.GetType() == typeof(AllAchievementsItem)).Render(windowSize);
             Plugin.allItems.First(item => item.GetType() == typeof(AllQuestsItem)).Render(windowSize);
+            Plugin.allItems.First(item => item.GetType() == typeof(AllMountsItem)).Render(windowSize);
+            Plugin.allItems.First(item => item.GetType() == typeof(AllAetherytesItem)).Render(windowSize);
         }
 
         ImGui.EndTable();

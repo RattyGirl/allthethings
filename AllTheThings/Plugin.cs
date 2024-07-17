@@ -2,6 +2,7 @@
 using System.Linq;
 using AllTheThings.DataModels;
 using AllTheThings.DataModels.Achievements;
+using AllTheThings.DataModels.Aetherytes;
 using AllTheThings.DataModels.Quests;
 using AllTheThings.Services;
 using AllTheThings.Windows;
@@ -17,7 +18,7 @@ namespace AllTheThings;
 public sealed class Plugin : IDalamudPlugin
 {
     private const string CommandName = "/att";
-    public static CompletionTaskService CompletionTaskService;
+    internal static CompletionTaskService CompletionTaskService = null!;
 
     public static List<BaseItem> allItems = [];
 
@@ -110,11 +111,20 @@ public sealed class Plugin : IDalamudPlugin
 
         //Quests
         allItems.Add(new AllQuestsItem());
-
         foreach (var quest in DataManager.GetExcelSheet<Quest>()!.ToList())
             allItems.Add(new QuestItem(quest));
         foreach (var expansion in DataManager.GetExcelSheet<ExVersion>()!.ToList())
             allItems.Add(new QuestExpansionItem(expansion));
+        
+        //Mounts
+        allItems.Add(new AllMountsItem());
+        foreach (var mount in DataManager.GetExcelSheet<Mount>()!.ToList())
+            allItems.Add(new MountItem(mount));
+        
+        //Aetherytes
+        allItems.Add(new AllAetherytesItem());
+        foreach (var aetheryte in DataManager.GetExcelSheet<Aetheryte>()!.ToList())
+            allItems.Add(new AetherytesItem(aetheryte));
     }
 
     private void OnCommand(string command, string args)

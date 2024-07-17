@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using AllTheThings.Services;
 using Lumina.Excel.GeneratedSheets2;
@@ -16,13 +17,14 @@ public class AchievementItem : BaseItem
         GetProgress();
     }
 
-    public float CalculateCompletion()
+    public override void CalculateCompletion()
     {
         if (progressCurrent == null || progressMax == null)
-            return 0.0f;
-        if (progressMax == 0)
-            return 0.0f;
-        return (float)progressCurrent / (float)progressMax;
+            CompletionAmount = 0.0f;
+        else if (progressMax == 0)
+            CompletionAmount = 0.0f;
+        else
+            CompletionAmount = (float)progressCurrent / (float)progressMax;
     }
 
     public override List<BaseItem> Children()
@@ -42,13 +44,10 @@ public class AchievementItem : BaseItem
             {
                 progressCurrent = currentMaximum.current;
                 progressMax = currentMaximum.maximum;
-                CompletionAmount = CalculateCompletion();
+                CalculateCompletion();
             })
         );
     }
 
-    public override string Description()
-    {
-        return achievementRow.Description;
-    }
+    public override String Description => achievementRow.Description;
 }
