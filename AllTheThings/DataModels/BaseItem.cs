@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using AllTheThings.Windows;
-using Dalamud.Interface;
 using ImGuiNET;
 
 namespace AllTheThings.DataModels;
@@ -16,7 +15,7 @@ public abstract class BaseItem
     }
 
     public string ItemName { get; set; }
-    public float CompletionAmount { get; set; } = 0.0f;
+    public float CompletionAmount { get; set; }
 
     public virtual String Description => "";
 
@@ -32,7 +31,9 @@ public abstract class BaseItem
             CompletionAmount = 1.0f;
         }
     }
-    
+
+    public virtual void GetProgress() { }
+
     public virtual int ChildrenAmount()
     {
         return !Children().Any() ? 1 : Children().Sum(item => item.ChildrenAmount());
@@ -50,28 +51,28 @@ public abstract class BaseItem
                 ImGui.TableSetColumnIndex(0);
                 ImGui.Text(ItemName);
                 ImGui.TableSetColumnIndex(1);
-                String completionText = CompletionAmount.ToString("0.00%");
-                float cellWidth = ImGui.GetColumnWidth();
-                float textWidth = ImGui.CalcTextSize(completionText).X;
-                float padding = 0.0f;
+                var completionText = CompletionAmount.ToString("0.00%") + "%";
+                var cellWidth = ImGui.GetColumnWidth();
+                var textWidth = ImGui.CalcTextSize(completionText).X;
+                var padding = 0.0f;
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + cellWidth - textWidth - padding);
                 ImGui.Text(completionText);
             }
         }
         else
         {
-            if(!(Math.Abs(CompletionAmount - 1.0f) < 0.01f) || CompletionWindow.showComplete)
+            if (!(Math.Abs(CompletionAmount - 1.0f) < 0.01f) || CompletionWindow.showComplete)
             {
                 ImGui.TableNextRow();
                 ImGui.TableSetColumnIndex(1);
-                String completionText = CompletionAmount.ToString("0.00%");
-                float cellWidth = ImGui.GetColumnWidth();
-                float textWidth = ImGui.CalcTextSize(completionText).X;
-                float padding = 0.0f;
+                var completionText = CompletionAmount.ToString("0.00%") + "%";
+                var cellWidth = ImGui.GetColumnWidth();
+                var textWidth = ImGui.CalcTextSize(completionText).X;
+                var padding = 0.0f;
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + cellWidth - textWidth - padding);
                 ImGui.Text(completionText);
                 ImGui.TableSetColumnIndex(0);
-                if (ImGui.TreeNode(ItemName + "##" + GetType().Name))
+                if (ImGui.TreeNodeEx(ItemName + "##" + GetType().Name, ImGuiTreeNodeFlags.SpanFullWidth))
                 {
                     foreach (var child in Children().OrderBy(item => item.CompletionAmount).Reverse())
                         child.Render(windowSize);

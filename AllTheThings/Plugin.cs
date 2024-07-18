@@ -115,12 +115,12 @@ public sealed class Plugin : IDalamudPlugin
             allItems.Add(new QuestItem(quest));
         foreach (var expansion in DataManager.GetExcelSheet<ExVersion>()!.ToList())
             allItems.Add(new QuestExpansionItem(expansion));
-        
+
         //Mounts
         allItems.Add(new AllMountsItem());
         foreach (var mount in DataManager.GetExcelSheet<Mount>()!.ToList())
             allItems.Add(new MountItem(mount));
-        
+
         //Aetherytes
         allItems.Add(new AllAetherytesItem());
         foreach (var aetheryte in DataManager.GetExcelSheet<Aetheryte>()!.ToList())

@@ -6,6 +6,7 @@ namespace AllTheThings.DataModels.Aetherytes;
 public class AetherytesItem : BaseItem
 {
     private Aetheryte aetheryteRow;
+
     public AetherytesItem(Aetheryte aetheryte) : base(aetheryte.PlaceName.Value?.Name.ToString() ?? "Unknown")
     {
         aetheryteRow = aetheryte;

@@ -1,8 +1,7 @@
 using System;
 using System.Linq;
+using AllTheThings.DataModels;
 using AllTheThings.DataModels.Achievements;
-using AllTheThings.DataModels.Aetherytes;
-using AllTheThings.DataModels.Quests;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 
@@ -12,6 +11,7 @@ public class CompletionWindow : Window, IDisposable
 {
     public static bool showComplete = true;
     private Plugin Plugin;
+    private AllTheThingsItem allTheThingsItem = new AllTheThingsItem();
 
     public CompletionWindow(Plugin plugin) :
         base("AllTheThings##HiddenID")
@@ -25,24 +25,24 @@ public class CompletionWindow : Window, IDisposable
     public override void Draw()
     {
         var windowSize = ImGui.GetContentRegionAvail();
-        ImGui.Text("WINDOW" + windowSize);
+        
         if (ImGui.Button(showComplete ? "Hide Complete" : "Show Complete")) showComplete = !showComplete;
         if (ImGui.Button("Reset Current Task")) Plugin.CompletionTaskService.SetupCurrentTasks();
         ImGui.SameLine();
         ImGui.Text("Completion Amount: " + Plugin.CompletionTaskService.TaskCount + ":" + Plugin.allItems.Count);
         ImGui.Text("Task: " + Plugin.CompletionTaskService.CurrentTask ?? "Nonew");
 
+        if (ImGui.Button("Reload Achievements"))
+            Plugin.allItems.ToList().ForEach(item => item.GetProgress());
+        ImGui.SameLine();
         if (ImGui.Button("Calculate Completion"))
-        {
-            Plugin.allItems.First(item => item.GetType() == typeof(AllAchievementsItem)).CalculateCompletion();
-        }
+            allTheThingsItem.CalculateCompletion();
 
         if (ImGui.BeginTable("AllCollectables", 2))
         {
-            Plugin.allItems.First(item => item.GetType() == typeof(AllAchievementsItem)).Render(windowSize);
-            Plugin.allItems.First(item => item.GetType() == typeof(AllQuestsItem)).Render(windowSize);
-            Plugin.allItems.First(item => item.GetType() == typeof(AllMountsItem)).Render(windowSize);
-            Plugin.allItems.First(item => item.GetType() == typeof(AllAetherytesItem)).Render(windowSize);
+            ImGui.TableSetupColumn("", ImGuiTableColumnFlags.None);
+            ImGui.TableSetupColumn("", ImGuiTableColumnFlags.WidthFixed, ImGui.CalcTextSize("100.0%").X + 20.0f);
+            allTheThingsItem.Render(windowSize);
         }
 
         ImGui.EndTable();

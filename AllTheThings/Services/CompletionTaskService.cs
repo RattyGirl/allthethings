@@ -18,7 +18,7 @@ public class CompletionTaskService : IDisposable
     public CompletionTaskService()
     {
         Plugin.GameInteropProvider.InitializeFromAttributes(this);
-        _receiveAchievementProgressDelegate?.Enable();
+        receiveAchievementProgressDelegate?.Enable();
     }
 
     public int TaskCount => Tasks.Count;
@@ -26,7 +26,7 @@ public class CompletionTaskService : IDisposable
 
     public void Dispose()
     {
-        _receiveAchievementProgressDelegate?.Dispose();
+        receiveAchievementProgressDelegate?.Dispose();
     }
 
     public void AddTask(CompletionTaskType task)
@@ -66,13 +66,16 @@ public class CompletionTaskService : IDisposable
     }
 
 
+
     [Signature("C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 89 91 ?? ?? ?? ?? 44 89 81",
                DetourName = nameof(ReceiveAchievementProgress))]
-    private readonly Hook<ReceiveAchievementProgressDelegate>? _receiveAchievementProgressDelegate;
+    private readonly Hook<ReceiveAchievementProgressDelegate>? receiveAchievementProgressDelegate = null!;
+    private unsafe delegate void ReceiveAchievementProgressDelegate(Achievement* self, uint id, uint current, uint max);
+
     private unsafe void ReceiveAchievementProgress(Achievement* self, uint id, uint current, uint max)
     {
         // Plugin.Logger.Info("Received Achievement" + id + ":" + current + "/" + max);
-        
+
         try
         {
             var index = curTask.FindIndex(type => type.RowID == id);
@@ -81,8 +84,6 @@ public class CompletionTaskService : IDisposable
         }
         catch { }
 
-        _receiveAchievementProgressDelegate.Original(self, id, current, max);
+        receiveAchievementProgressDelegate.Original(self, id, current, max);
     }
-
-    private unsafe delegate void ReceiveAchievementProgressDelegate(Achievement* self, uint id, uint current, uint max);
 }

@@ -14,8 +14,9 @@ public class AchievementItem : BaseItem
     public AchievementItem(Achievement achievement) : base(achievement.Name)
     {
         achievementRow = achievement;
-        GetProgress();
     }
+
+    public override String Description => achievementRow.Description;
 
     public override void CalculateCompletion()
     {
@@ -32,7 +33,7 @@ public class AchievementItem : BaseItem
         return [];
     }
 
-    public unsafe void GetProgress()
+    public override unsafe void GetProgress()
     {
         Plugin.CompletionTaskService.AddTask(
             new CompletionTaskType.AchievementTask(achievementRow.RowId, b =>
@@ -48,6 +49,4 @@ public class AchievementItem : BaseItem
             })
         );
     }
-
-    public override String Description => achievementRow.Description;
 }

@@ -6,15 +6,14 @@ namespace AllTheThings.DataModels.Quests;
 
 public class QuestItem : BaseItem
 {
-    public Quest questRow;
+    public readonly Quest questRow;
 
     public QuestItem(Quest quest) : base(quest.Name)
     {
         questRow = quest;
-        GetProgress();
     }
 
-    public void GetProgress()
+    public override void GetProgress()
     {
         CompletionAmount = QuestManager.IsQuestComplete(questRow.RowId) ? 1.0f : 0.0f;
     }
